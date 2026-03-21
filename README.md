@@ -1,79 +1,122 @@
 # Simple Go CRUD API
 
-A simple RESTful API server written in Golang, demonstrating basic CRUD operations, database integration with PostgreSQL, and common development patterns. This project was created as a learning exercise to explore Go, REST APIs, JSON handling, and database interactions.
+A production-ready boilerplate for a RESTful API server written in Golang. This project demonstrates best practices for building scalable Go applications, including structured logging, robust configuration, database migrations, and comprehensive testing.
+
+## Table of Contents
+- [Features](#features)
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Configuration](#configuration)
+  - [Installation](#installation)
+  - [Running the Application](#running-the-application)
+- [API Endpoints](#api-endpoints)
+- [Database Schema](#database-schema)
+- [Development](#development)
+  - [Testing](#testing)
+  - [Migrations](#migrations)
+- [License](#license)
 
 ## Features
+- **Clean Architecture**: Decoupled store, model, and server layers.
+- **RESTful Design**: Standard HTTP methods and status codes.
+- **PostgreSQL Integration**: High-performance database operations using `lib/pq`.
+- **Structured Logging**: Context-aware logging with `logrus`.
+- **Schema Management**: SQL-based migrations for versioned database changes.
+- **Validation**: Input validation using `ozzo-validation`.
+- **Security**: Password hashing with `bcrypt`.
 
-- **RESTful API**: Built using the `gorilla/mux` router.
-- **Database Integration**: Uses PostgreSQL for data storage with `lib/pq` driver.
-- **Logging**: Implements structured logging with `logrus`.
-- **Configuration**: Managed via TOML files using `BurntSushi/toml`.
-- **Testing**: Includes unit tests and integration tests.
-- **Migrations**: Database schema management using SQL migrations.
+## Architecture
+The project follows a modular structure where concerns are separated:
+- **Server**: Handles HTTP routing and middleware.
+- **Store**: Abstracted database layer with repository pattern.
+- **Models**: Defines data structures and business rules (e.g., validation).
 
 ## Tech Stack
-
-- **Language**: Go (Golang)
+- **Language**: Go 1.16+
 - **Router**: [gorilla/mux](https://github.com/gorilla/mux)
-- **Logger**: [logrus](https://github.com/sirupsen/logrus)
 - **Database**: PostgreSQL
-- **Config**: TOML
+- **Logging**: [logrus](https://github.com/sirupsen/logrus)
+- **Validation**: [ozzo-validation](https://github.com/go-ozzo/ozzo-validation)
+- **Config**: TOML ([BurntSushi/toml](https://github.com/BurntSushi/toml))
+
+## Project Structure
+```text
+.
+├── cmd/apiserver          # Entry point (main.go)
+├── configs/               # TOML configuration files
+├── internal/app/
+│   ├── apiserver/         # API logic & routing
+│   ├── model/             # Domain entities & validation
+│   └── store/             # Repository layer & DB connection
+├── migrations/            # SQL migration files
+├── Makefile               # Build and test shortcuts
+└── README.md
+```
 
 ## Getting Started
 
 ### Prerequisites
+- Go 1.16 or higher installed.
+- PostgreSQL server instance.
+- `golang-migrate` (optional, for manual migration management).
 
-- Go 1.16 or higher
-- PostgreSQL
+### Configuration
+Update `configs/apiserver.toml` with your environment settings:
+```toml
+bind_addr = ":8080"
+log_level = "debug"
+
+[store]
+database_url = "host=localhost user=postgres password=password dbname=restapi_dev sslmode=disable"
+```
 
 ### Installation
-
 1. Clone the repository:
    ```bash
    git clone https://github.com/TaniaMarchuk/simpleCRUD.git
    cd simpleCRUD
    ```
-
-2. Install dependencies:
+2. Download dependencies:
    ```bash
    go mod download
    ```
 
-### Configuration
+### Running the Application
+Use the `Makefile` to build and run:
+```bash
+make          # Compiles the binary
+./apiserver   # Starts the server
+```
 
-The application uses a TOML configuration file. A sample configuration can be found in `configs/apiserver.toml`. Ensure your database credentials are correctly set in the configuration file.
+## API Endpoints
+| Method | Endpoint | Description | Status |
+|--------|----------|-------------|--------|
+| GET    | `/hello` | Health check / Greeting | Done |
+| POST   | `/users` | Create a new user | Planned |
 
-### Building and Running
+## Database Schema
+The primary table is `users`, created via migrations:
+- `id`: serial (Primary Key)
+- `email`: varchar (Required, Unique)
+- `encrypted_password`: varchar (Required)
 
-You can use the provided `Makefile` for common tasks:
+## Development
 
-- **Build the project**:
-  ```bash
-  make
-  ```
+### Testing
+We use `testing` and `testify/assert` for validation.
+```bash
+make test
+```
 
-- **Run tests**:
-  ```bash
-  make test
-  ```
-
-- **Start the API server**:
-  ```bash
-  ./apiserver
-  ```
-
-Once the server is running, you can access the health check endpoint:
-[http://localhost:8080/hello](http://localhost:8080/hello)
-
-## Project Structure
-
-- `cmd/apiserver`: Main entry point for the application.
-- `internal/app/apiserver`: Core API server logic and routing.
-- `internal/app/model`: Data models and validations.
-- `internal/app/store`: Database interaction and repositories.
-- `migrations`: SQL migration files for database schema.
-- `configs`: Configuration files.
+### Migrations
+Migrations are stored in `/migrations`. They follow the `up` and `down` pattern.
+To apply migrations (example using `migrate` CLI):
+```bash
+migrate -path migrations -database "postgres://localhost/restapi_dev?sslmode=disable" up
+```
 
 ## License
-
-This project is open-source and available under the MIT License.
+MIT License. Feel free to use this for your own projects!
