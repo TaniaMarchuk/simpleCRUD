@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"github.com/BurntSushi/toml"
+	"github.com/sirupsen/logrus"
 	"goproject/simpleCRUD/internal/app/apiserver"
-	"log"
 )
 
 var (
@@ -12,7 +12,7 @@ var (
 )
 
 func init() {
-	flag.StringVar(&configPath, "config-path", "configs/apiserver.toml", "path to config file")
+	flag.StringVar(&configPath, "config-path", "github.com/TaniaMarchuk/simpleCRUD/configs/apiserver.toml", "path to config file")
 }
 
 func main() {
@@ -21,10 +21,11 @@ func main() {
 	config := apiserver.NewConfig()
 	_, err := toml.DecodeFile(configPath, config)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatalf("error decoding config file: %v", err)
 	}
+
 	s := apiserver.New(config)
 	if err := s.Start(); err != nil {
-		log.Fatal(err)
+		logrus.Fatalf("error starting apiserver: %v", err)
 	}
 }

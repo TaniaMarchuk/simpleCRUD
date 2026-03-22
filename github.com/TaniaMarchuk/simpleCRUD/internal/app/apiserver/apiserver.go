@@ -29,9 +29,10 @@ func (s *APIServer) Start() error {
 	}
 	s.configureRouter()
 	if err := s.configureStore(); err != nil {
+		s.logger.Errorf("error configuring store: %v", err)
 		return err
 	}
-	s.logger.Info("Server starts...")
+	s.logger.Info("Starting API server on ", s.config.BindAddr)
 	return http.ListenAndServe(s.config.BindAddr, s.router)
 }
 
